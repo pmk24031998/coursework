@@ -1,0 +1,68 @@
+// Use DBML to define your database structure
+// Docs: https://www.dbml.org/docs
+// https://dbdiagram.io/d
+
+Table business_type {
+  id integer [primary key]
+  name varchar
+}
+
+Table client_status {
+  id integer [primary key]
+  name varchar
+}
+
+Table client {
+  id integer [primary key]
+  name varchar
+  status_id integer
+  business_type_id integer
+  tariff_id integer
+  client_representetive_id integer
+}
+
+Table tariff {
+  id integer [primary key]
+  name varchar
+  is_individual boolean
+  comission integer
+  discount integer
+}
+
+Table client_data {
+  id integer [primary key]
+  client_id integer
+  inn integer
+  kpp integer
+  ogrn integer
+  ogrn_date date
+  reg_date date
+  address varchar
+  director_name varchar
+  capital decimal
+}
+
+Table post {
+  id integer [primary key]
+  client_id integer
+  status_id integer
+  contacts varchar
+  post text
+  cost integer
+}
+
+Table client_representetive {
+  id integer [primary key]
+  client_id integer
+  login varchar
+  password_hash varchar
+  first_name varchar
+  second_name varchar
+  phone_number varchar
+}
+
+Ref: client.business_type_id > business_type.id
+Ref: client.status_id > client_status.id
+Ref: client.id < client_representetive.client_id
+Ref: client.tariff_id > tariff.id
+Ref: client.id - client_data.client_id

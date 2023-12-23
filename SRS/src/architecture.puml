@@ -1,0 +1,51 @@
+@startuml Architecture
+
+!include <C4/C4_Container>
+skinparam Linetype polyline
+skinparam wrapWidth 900
+
+Person(manager, "Менеджер")
+Person(client, "Клиент")
+
+System_Boundary(bookingSystem, "Marketing Portal"){
+    ContainerQueue(api, "API Gateway", "Взаимодействие с внешними сервисами, аутентификация клиентов и пользователей")
+       Container(mobileApp, "Mobile App", "Flutter", "Мобильное приложение для доступа к функциям Marketing Portal")
+
+    Boundary(msRegistrationClient, "Микросервис регистрации клиентов"){
+        Container(registrationClient, "Client registration service", "C#, .NET", "Сервис регистрации клиентов")
+        ContainerDb(dbRegistrationClient, "Client registration database", "PostgreSQL", "Хранение данных регистрации клиентов")
+    }
+
+    Boundary(msСlientLK, "Микросервис личного кабинета клиента"){
+        Container(clientLK, "Client account management service", "C#, .NET", "Сервис управления личным кабинетом клиента")
+        ContainerDb(dbClientLK, "Client account management database", "PostgreSQL", "Хранение данных личных кабинетов клиентов")
+    }
+
+    Boundary(service, "Микросервис логирования") {
+        Container(logUI, "Log UI", "Kibana", "Просмотр логов")
+        Container(log, "Logging system", "Elasticsearch", "Управление логированием и хранение логов")
+    }
+
+}
+
+BiRel_D(registrationClient, dbRegistrationClient, "Чтение и запись в БД", "ODBC")
+BiRel_D(clientLK, dbClientLK, "Чтение и запись в БД", "ODBC")
+
+
+Rel_D(logUI, log, "Запрашивает данные для визуализации", "REST/HTTP")
+
+Rel_D(manager, mobileApp, " ")
+Rel_D(client, mobileApp, " ")
+
+Rel_D(mobileApp, api, "Перенаправляет запросы", "HTTPS")
+
+
+Rel_D(api, registrationClient, "Регистрация клиента", "REST/HTTP")
+Rel_D(api, clientLK, "Доступ к личному кабинету клиента", "REST/HTTP")
+Rel_L(api, log, "Передает логи", "REST/HTTP")
+
+
+Rel(api, email, "Запросы на отправку сообщения", "SMTP")
+Rel(mobileApp, analitics, "Данные для формирования отчетов", "REST/HTTP")
+
+@enduml

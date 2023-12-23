@@ -1,0 +1,46 @@
+@startuml
+left to right direction
+' skinparam Linetype ortho
+
+actor "Клиент" as ul
+
+rectangle "Регистрация клиента" {
+    ' Клиент
+    usecase (UC-1: Регистрация клиента) as regUl
+    usecase (UC-2: Отмена регистрации клиента) as cancelRegUl
+    usecase (UC-3: Аутентификация клиента) as authUl
+    usecase (UC-4: Активация личного кабинета) as activateLK
+    usecase (UC-5: Просмотр информации о своей организации) as searchInfo
+    usecase (UC-6: Изменение информации о своей организации) as editCompanyInfo
+    usecase (UC-7: Добавление обьявления) as insertRestInfo
+    usecase (UC-8: Изменение обьявления) as editRestInfo
+
+    ' Менеджер
+    usecase checkCl as "UC-23: Верификация клиента
+    --
+    Extention points:
+    Подбор индивидуальных условий"
+
+    ul -- regUl
+    ul -- authUl
+    authUl <.. searchInfo : include
+    authUl <.. activateLK : include
+    authUl <.. insertRestInfo : include
+    searchInfo <.. editCompanyInfo : extend
+
+    insertRestInfo <.. editRestInfo : extend
+
+    regUl <.. cancelRegUl : extend
+
+    manager -- regUl
+    manager -- checkCl
+    '
+    checkCl <.. chooseIndividualConditions : extend
+    note right of chooseIndividualConditions
+
+
+    end note
+
+
+}
+@enduml

@@ -1,0 +1,45 @@
+@startuml
+
+'hide footbox
+skinparam {
+    MaxMessageSize 200
+}
+skinparam sequence{
+    ParticipantPadding 30
+    MessageAlign center
+}
+autonumber "<b>[0]"
+
+actor "Клиент" as user
+box "Регистрация" #transparent
+    participant "Страница регистрации" as page
+    participant "Микросервис регистрации" as service
+    database "База данных" as db
+    'participant "Приложение" as app
+end box
+
+user++
+user -> page++: Открыть страницу регисрации
+page ->> service: Запросить список тарифов
+service ->> db: Запросить список тарифов
+db -->> service--: Список тарифов
+service -->> page--: Список тарифов
+user -> page: Ввести контактные данные
+page -> page++: Проверить корректность заполненных полей
+page--
+page -> service++: Передать информацию о регистрации
+service -> db++: Найти клиента
+
+alt Успешная регистрация
+    db --> service: Клиент не найден
+    service -> service++--: Сгенерировать хеш пароля
+    service -> db: Добавить клиента
+    db --> service: Клиент добавлен
+    service --> page: Успешная регистрация
+    page --> user: Успешная регистрация
+else Клиент уже зарегистрирован
+    db --> service--: Клиент найден
+    service --> page--: Ошибка регистрации
+    page --> user: Ошибка регистрации
+end
+@enduml
